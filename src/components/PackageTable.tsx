@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import { Fragment, useState } from "react";
 import {
   DataTable,
   Table,
@@ -30,6 +30,9 @@ const headers = [
 ];
 
 export const PackageTable = ({ packages }: Props) => {
+  const [sortKey, setSortKey] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"ASC" | "DESC">("ASC");
+
   const rows = packages.map((pkg) => ({
     id: pkg.id,
     name: pkg.name || "-",
@@ -41,17 +44,53 @@ export const PackageTable = ({ packages }: Props) => {
       pkg.vulnerabilities.find((v) => v.fixVersion)?.fixVersion || "-",
   }));
 
+  const sortedRows = [...rows].sort((a, b) => {
+    if (!sortKey) return 0;
+
+    const aVal = a[sortKey as keyof typeof a];
+    const bVal = b[sortKey as keyof typeof b];
+
+    if (aVal === "-" && bVal === "-") return 0;
+    if (aVal === "-") return 1;
+    if (bVal === "-") return -1;
+
+    let comparison = 0;
+    if (typeof aVal === "number" && typeof bVal === "number") {
+      comparison = aVal - bVal;
+    } else {
+      comparison = String(aVal).localeCompare(String(bVal));
+    }
+
+    return sortDirection === "ASC" ? comparison : -comparison;
+  });
+
   const pkgMap = new Map(packages.map((p) => [p.id, p]));
 
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection(sortDirection === "ASC" ? "DESC" : "ASC");
+    } else {
+      setSortKey(key);
+      setSortDirection("ASC");
+    }
+  };
+
   return (
-    <DataTable rows={rows} headers={headers} isSortable size="md">
+    <DataTable rows={sortedRows} headers={headers} isSortable size="md">
       {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
         <Table {...getTableProps()}>
           <TableHead>
             <TableRow>
               <TableExpandHeader />
               {headers.map((header) => (
-                <TableHeader {...getHeaderProps({ header })} key={header.key}>
+                <TableHeader
+                  {...getHeaderProps({ header })}
+                  key={header.key}
+                  isSortHeader={true}
+                  isSortable={true}
+                  onClick={() => handleSort(header.key)}
+                  sortDirection={sortKey === header.key ? sortDirection : undefined}
+                >
                   {header.header}
                 </TableHeader>
               ))}

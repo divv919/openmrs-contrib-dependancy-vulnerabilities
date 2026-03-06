@@ -28,6 +28,14 @@ function extractPackageName(packageId?: string): string | null {
   return match ? match[1] : null;
 }
 
+/** Extract version from package ID (e.g., "pkg:javascript/jquery@1.7.1" → "1.7.1") */
+function extractPackageVersion(packageId?: string): string {
+  if (!packageId) return "";
+  // Format: pkg:type/name@version
+  const match = packageId.match(/@(.+)$/);
+  return match ? match[1] : "";
+}
+
 /** Return the highest severity string from a list */
 export function highestSeverity(severities: string[]): string {
   if (severities.length === 0) return "Unknown";
@@ -69,23 +77,21 @@ export function normalizeReport(
 
     // Extract package name from packages array, fall back to fileName
     const packageName =
-      extractPackageName(dep.packages?.[0]?.id) ||
-      dep.fileName ||
-      "Unknown";
+      extractPackageName(dep.packages?.[0]?.id) || dep.fileName || "Unknown";
+
+    // Extract version from package ID
+    const packageVersion = extractPackageVersion(dep.packages?.[0]?.id);
 
     const normalizedVulns: NormalizedVulnerability[] = dep.vulnerabilities.map(
       (v) => {
         // Prefer cvssv3 over cvssv2
-        const severity =
-          v.cvssv3?.baseSeverity || v.severity || "Unknown";
+        const severity = v.cvssv3?.baseSeverity || v.severity || "Unknown";
         const score = v.cvssv3?.baseScore ?? v.cvssv2?.score ?? null;
 
         // CWE from cwes array, filter out generic entries
         const cwe =
           v.cwes
-            ?.filter(
-              (c) => c !== "NVD-CWE-noinfo" && c !== "NVD-CWE-Other",
-            )
+            ?.filter((c) => c !== "NVD-CWE-noinfo" && c !== "NVD-CWE-Other")
             .join(", ") || undefined;
 
         // Exploit flag: true if any reference name contains "EXPLOIT"
@@ -103,9 +109,7 @@ export function normalizeReport(
           v.vulnerableSoftware?.find(
             (s) => s.software?.vulnerabilityIdMatched === "true",
           ) ??
-          v.vulnerableSoftware?.find(
-            (s) => s.software?.versionEndExcluding,
-          );
+          v.vulnerableSoftware?.find((s) => s.software?.versionEndExcluding);
 
         const affectedVersions = matchedSw?.software
           ? buildVersionRange(matchedSw.software)
@@ -131,7 +135,7 @@ export function normalizeReport(
     packages.push({
       id: `${projectName}-pkg-${idx++}`,
       name: packageName,
-      version: "",
+      version: packageVersion,
       vulnerabilities: normalizedVulns,
       hasExploit: pkgHasExploit,
     });
