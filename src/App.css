@@ -1,0 +1,126 @@
+@use "@carbon/react";
+
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.dashboard_divider {
+  width: 7rem;
+  height: 6px;
+  background-color: #017d79;
+  margin-bottom: 1rem;
+}
+
+/* Report Card */
+.report-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.report-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.report-card__info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.report-card__chevron {
+  display: inline-block;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  color: #525252;
+}
+
+.report-card__chevron--open {
+  transform: rotate(90deg);
+}
+
+.report-card__name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #161616;
+}
+
+.report-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #525252;
+  padding: 0.25rem;
+}
+
+.report-card__meta:hover {
+  background-color: #d8d6d6;
+}
+
+.report-card__divider {
+  color: #c6c6c6;
+}
+
+.report-card__body {
+  border-top: 1px solid #e0e0e0;
+  padding: 0;
+}
+
+/* Nested vulnerability table */
+.vuln-table {
+  margin: 0;
+  width: 100%;
+  table-layout: auto;
+}
+
+.vuln-table td {
+  padding: 0.5rem 0.25rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.vuln-table td:nth-child(4) {
+  white-space: normal;
+  min-width: 200px;
+}
+
+.vuln-table th {
+  padding: 0.5rem 0.25rem;
+  white-space: nowrap;
+}
+
+.vuln-table__cve-cell {
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+/* Disable hover on expanded package rows and their child expanded-row */
+.pkg-row--expanded td,
+.pkg-expanded-row td {
+  background-color: transparent !important;
+}
+
+.pkg-row--expanded:hover td {
+  background-color: transparent !important;
+}
+
+.pkg-expanded-row:hover td {
+  background-color: transparent !important;
+}
+
+/* Disable hover on vulnerability table body rows */
+.vuln-table__row:hover td {
+  background-color: transparent !important;
+}
